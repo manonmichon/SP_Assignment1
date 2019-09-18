@@ -1,21 +1,32 @@
-<html>
-<head>
-  <script src="https://cdn.rawgit.com/maxlath/wikidata-sdk/master/dist/wikidata-sdk.js"></script>
+<html> 
+<head> <!-- Calling the wikidata library-->
+  <script src="https://cdn.rawgit.com/maxlath/wikidata-sdk/dist/dist/wikibase-sdk.min.js"></script>
+<!-- Initialize a global wdk object using the WBK object -->
+<script src="https://cdn.rawgit.com/maxlath/wikidata-sdk/dist/dist/wikidata-sdk.min.js"></script>
 </head>
 
 <body>
-  <pre id="output"></pre>
+  <pre id="output"></pre> <!-- initialise the object called "output"" -->
+
+
   <script>
-    query = "SELECT ?compound ?cas WHERE { ?compound wdt:P231 ?cas }"
+  
+  /* Question: what is the amount of genes per taxon?
+  First initialise a SPARQL query that can be used in wikidata*/
+    SPARQLquery = "SELECT ?species (COUNT(DISTINCT ?gene) AS ?count)\
+WHERE{\
+  ?gene wdt:P31 wd:Q7187;\
+        wdt:P703 ?species .\
+  } GROUP BY ?species"
 
     fetch(
-      wdk.sparqlQuery(query)
-    ).then( response => response.json()
-    ).then( wdk.simplify.sparqlResults
+      wdk.sparqlQuery(SPARQLquery) //obtaining the SPARQL query from the wikidata databank
+    ).then( response => response.json() //convert result into a JSON format
+    ).then( wdk.simplify.sparqlResults //easier to work with
     ).then(
       function (response) {
         document.getElementById('output').innerHTML =
-          JSON.stringify(response, undefined, 2);
+          JSON.stringify(response, undefined, 2); //JSON object is converted to notation
       }
     )
   </script>
