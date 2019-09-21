@@ -4,9 +4,28 @@
 <!-- Initialize a global wdk object using the WBK object -->
 <script src="https://cdn.rawgit.com/maxlath/wikidata-sdk/dist/dist/wikidata-sdk.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<title>Visualisation of a SPARQL query </title>
+
 </head>
 
 <body>
+  <text>
+    <font size = "6">
+      <font face = "Georgia">What is the amount of genes per taxon?
+      </font>
+    </font>
+  </text>
+  <p>
+    <font size = "3">
+      <font face = "Georgia">
+      Using a SPARQL query to request the amount of genes per taxon,
+      the answer to this question can be visualised using a d3j tool. <br> Within each bubble, the amount of genes
+      visualised numerically and by bubble size, together with the taxon code from wikidata and the scientific
+      name of the taxon.
+      </font>
+    </font>
+  </p>
+
   <pre id="output"></pre> <!-- initialise the object called "output"" -->
 
 
