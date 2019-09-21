@@ -4,35 +4,45 @@
 <!-- Initialize a global wdk object using the WBK object -->
 <script src="https://cdn.rawgit.com/maxlath/wikidata-sdk/dist/dist/wikidata-sdk.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<title>Visualisation of a SPARQL query </title>
+<title>Visualisation of a SPARQL query </title> <!-- Title of document -->
 
 </head>
 
 <body>
-  <text>
+  <text> <!-- Constructing the title of the page -->
     <font size = "6">
-      <font face = "Georgia">What is the amount of genes per taxon?
+      <font face = "Georgia">What is the number of genes per taxon?
       </font>
     </font>
   </text>
+  <!-- Constructing the explanation to the visualisation -->
   <p>
     <font size = "3">
       <font face = "Georgia">
-      Using a SPARQL query to request the amount of genes per taxon,
-      the answer to this question can be visualised using a d3j tool. <br> Within each bubble, the amount of genes
-      visualised numerically and by bubble size, together with the taxon code from wikidata and the scientific
-      name of the taxon.
+      To answer this question, a SPARQL query was constructed to communicate with the wikidata server.<br>
+      Next, the results of this query were visualised as SVG using the D3.js JavaScript library.
+      </font>
+    </font>
+  </p>
+  <p>
+    <font size = "3">
+      <font face = "Georgia">
+      The size of each bubble represents the number of genes each taxon contains.
+      The number is also displayed in the bubble, <br> as well as the taxon code given by wikidata
+      and the scientific name of each taxon.
       </font>
     </font>
   </p>
 
-  <pre id="output"></pre> <!-- initialise the object called "output"" -->
+  <pre id="output"></pre> <!-- Initialising the object called "output" -->
 
 
   <script>
 
   /* Question: what is the amount of genes per taxon?
-  First initialise a SPARQL query that can be used in wikidata*/
+  First initialise a SPARQL query that can be used in wikidata
+  The number of genes is counted for each taxon code and taxon name,
+  next the results are sorted by taxon code and taxon name.*/
     SPARQLquery = "SELECT ?taxon ?taxonName (COUNT(DISTINCT ?gene) AS ?NumberOfGenes)\
                     WHERE{\
                       ?gene wdt:P31 wd:Q7187;\
@@ -42,38 +52,41 @@
                     GROUP BY ?taxon ?taxonName"
 
     fetch(
-      wdk.sparqlQuery(SPARQLquery) //obtaining the SPARQL query from the wikidata databank
-    ).then( response => response.json() //convert result into a JSON format
-  ).then( wdk.simplify.sparqlResults //converting to make it easier to work with
+      wdk.sparqlQuery(SPARQLquery) // Obtaining the SPARQL query from the wikidata databank
+    ).then( response => response.json() // Converting result into a JSON format
+  ).then( wdk.simplify.sparqlResults // Simplifying results to make them easier to work with
     ).then(
       function (response) {
-        DataJSON = response;
+        DataJSON = response; // Storing the results of the query to the object DataJSON
 
-                //DataSTRING = JSON.stringify(response, undefined, 3);
-        /* document.getElementById('output').innerHTML = -->
-        <!--  JSON.stringify(response, undefined, 2); //JSON object is converted to notation --> */
-        dataset = {};
-        dataset.children = DataJSON.map(function(item) { return { "Name": item.taxon , "Label": item.taxonName , "Count": item.NumberOfGenes } });
+        dataset = {}; // Creating an empty map
+        // Filling the map with the required results from the query, previously stored in "DataJSON"
+        dataset.children = DataJSON.map(function(item) { return { "Name": item.taxon , "Label": item.taxonName ,
+        "Count": item.NumberOfGenes } });
 
+        // Visualisation of the results in a bubble chart
 
-          /*  "children": [{"Name":"Olives","Count":4319},] --> */
-
-        var diameter = 600;
+        // Initial settings for figure
+        var diameter = 1000;
         var color = d3.scaleOrdinal(d3.schemeCategory20);
 
+        // The distance between each bubble
         var bubble = d3.pack(dataset)
             .size([diameter, diameter])
             .padding(1.5);
 
+        // Create the bubble itself
         var svg = d3.select("body")
             .append("svg")
             .attr("width", diameter)
             .attr("height", diameter)
             .attr("class", "bubble");
 
+        // Set the hierarchy of the visualisation
         var nodes = d3.hierarchy(dataset)
             .sum(function(d) { return d.Count; });
 
+        // Design of the complete figure
         var node = svg.selectAll(".node")
             .data(bubble(nodes).descendants())
             .enter()
@@ -86,11 +99,14 @@
                 return "translate(" + d.x + "," + d.y + ")";
             });
 
-        node.append("title")
+        /* This is part of the original code, but is irrelevant here,
+        as the text function is already used later on.*/
+        /*node.append("title")
             .text(function(d) {
                 return d.Name + ": " + d.Count;
-            });
+            });*/
 
+        // Design the visualisation of the bubble
         node.append("circle")
             .attr("r", function(d) {
                 return d.r;
@@ -99,6 +115,7 @@
                 return color(i);
             });
 
+        // Paste the taxon label into the bubble
         node.append("text")
             .attr("dy", ".2em")
             .style("text-anchor", "middle")
@@ -111,6 +128,7 @@
             })
             .attr("fill", "white");
 
+        // Paste the taxon code into the bubble
         node.append("text")
             .attr("dy", "1.3em")
             .style("text-anchor", "middle")
@@ -123,6 +141,7 @@
             })
             .attr("fill", "white");
 
+        // Paste the number of genes into the bubble
         node.append("text")
             .attr("dy", "2.6em")
             .style("text-anchor", "middle")
@@ -135,6 +154,7 @@
             })
             .attr("fill", "white");
 
+        // Setting in the d3 toolbox
         d3.select(self.frameElement)
             .style("height", diameter + "px");
       }
