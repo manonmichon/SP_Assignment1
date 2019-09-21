@@ -15,12 +15,12 @@
   /* Question: what is the amount of genes per taxon?
   First initialise a SPARQL query that can be used in wikidata*/
     SPARQLquery = "SELECT ?taxon ?taxonName (COUNT(DISTINCT ?gene) AS ?NumberOfGenes)\
-        WHERE{\
-          ?gene wdt:P31 wd:Q7187;\
-                wdt:P703 ?taxon .\
-                ?taxon wdt:P225 ?taxonName\
-        }\
-        GROUP BY ?taxon ?taxonName"
+                    WHERE{\
+                      ?gene wdt:P31 wd:Q7187;\
+                            wdt:P703 ?taxon .\
+                            ?taxon wdt:P225 ?taxonName\
+                    }\
+                    GROUP BY ?taxon ?taxonName"
 
     fetch(
       wdk.sparqlQuery(SPARQLquery) //obtaining the SPARQL query from the wikidata databank
@@ -29,12 +29,12 @@
     ).then(
       function (response) {
         DataJSON = response;
-      
+
                 //DataSTRING = JSON.stringify(response, undefined, 3);
         /* document.getElementById('output').innerHTML = -->
         <!--  JSON.stringify(response, undefined, 2); //JSON object is converted to notation --> */
         dataset = {};
-        dataset.children = DataJSON.map(function(item) { return { "Name": item.taxon , "Label": item.taxonName , "Count": item.count } });
+        dataset.children = DataJSON.map(function(item) { return { "Name": item.taxon , "Label": item.taxonName , "Count": item.NumberOfGenes } });
 
 
           /*  "children": [{"Name":"Olives","Count":4319},] --> */
@@ -69,7 +69,7 @@
 
         node.append("title")
             .text(function(d) {
-                return d.Label + ": " + d.Count;
+                return d.Name + ": " + d.Count;
             });
 
         node.append("circle")
@@ -94,6 +94,18 @@
 
         node.append("text")
             .attr("dy", "1.3em")
+            .style("text-anchor", "middle")
+            .text(function(d) {
+                return d.data.Name;
+            })
+            .attr("font-family",  "Gill Sans", "Gill Sans MT")
+            .attr("font-size", function(d){
+                return d.r/5;
+            })
+            .attr("fill", "white");
+
+        node.append("text")
+            .attr("dy", "2.6em")
             .style("text-anchor", "middle")
             .text(function(d) {
                 return d.data.Count;
